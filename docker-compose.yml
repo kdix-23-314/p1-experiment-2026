@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  home-server:
+      image: nginx:alpine
+      container_name: cds-container-home
+      ports:
+        - "8080:80"
+      volumes:
+        - .:/usr/share/nginx/html:ro
+
+  iga-system:
+    build: ./color_system_design_iga
+    ports:
+      - "8000:8080" # 左がローカルポート、右がDocker内の指定ポート
+
+  random-system:
+    build: ./color_system_design_random
+    ports:
+      - "8001:8080"

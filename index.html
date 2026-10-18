@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>UI色彩デザイン生成システム</title>
+  <style>
+    body {
+      margin: 0;
+      padding-top: 60px;
+      font-family: 'Helvetica Neue', 'Arial', 'Hiragino Sans', 'Meiryo', sans-serif;
+      background-color: hsl(240, 29%, 97%);
+      color: #333;
+    }
+
+    /* ナビゲーションバー */
+    .navbar {
+      background-color: #333;
+      color: white;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+    }
+    .nav-list {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+      gap: 20px;
+    }
+    .nav-list li a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      transition: color 0.3s;
+    }
+    .nav-list li a:hover {
+      color: #ffcc00;
+    }
+
+    .page-header {
+      padding: 10px 20px 50px;
+      text-align: center;
+      background: white;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .page-header h1 {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+    }
+
+    /* CTAボタン */
+    .cta-buttons {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .cta-button {
+      background-color: #ffcc00; /* デフォルトの黄色 */
+      color: #333;
+      padding: 15px 30px;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border: 2px solid transparent; 
+      min-width: 200px; 
+      text-align: center; 
+      
+      /* ★ 垂直中央揃えのため、Flexboxプロパティを再設定 */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cta-button:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+    
+    /* セカンダリCTA (配色サンプル/やり直すボタンなど) */
+    .cta-button.secondary-cta {
+      background-color: #fff;
+      border: 2px solid #ddd;
+      color: #666;
+      box-shadow: none; /* デフォルトの影を無効化 */
+    }
+    .cta-button.secondary-cta:hover {
+      background-color: #f0f0f0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* ホバー時の影を弱く */
+      border-color: #ccc;
+      transform: none; /* ホバー時の浮き上がりを無効化 */
+    }
+    
+    /* Primary CTA Blue (システムA) */
+    .cta-button.primary-blue {
+      background-color: #007bff; /* Blue */
+      border: 2px solid #007bff;
+      color: white;
+    }
+    .cta-button.primary-blue:hover {
+      background-color: #0069d9;
+      border-color: #0062cc;
+      color: white;
+      transform: translateY(-5px); /* 元の浮き上がりを再適用 */
+    }
+
+    /* Primary CTA Red (システムB) */
+    .cta-button.primary-red {
+      background-color: #d9534f; /* Red */
+      border: 2px solid #d9534f;
+      color: white;
+    }
+    .cta-button.primary-red:hover {
+      background-color: #c9302c;
+      border-color: #c9302c;
+      color: white;
+      transform: translateY(-5px); /* 元の浮き上がりを再適用 */
+    }
+    
+    /* セクション共通 */
+    .content-section {
+      /* 修正: max-widthを広げ、文章の行の長さを長くする */
+      max-width: 1400px; 
+      margin: 60px auto;
+      padding: 0 20px;
+      text-align: center;
+    }
+    .section-title {
+      text-align: center;
+      font-size: 2.2em;
+      margin-bottom: 40px;
+    }
+    .section-text {
+      /* 修正: テキストコンテナの最大幅を1100pxに拡大 */
+      max-width: 1100px; 
+      margin: 0 auto;
+      text-align: center; 
+      line-height: 1.6;
+      color: #555;
+      font-size: 1em;
+    }
+    
+    /* ステップコンテナと矢印スタイル */
+    .steps-container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: nowrap;
+        flex-wrap: nowrap;
+        margin: 30px auto 50px auto;
+        padding: 0 10px;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    /* 矢印を表現するためのスタイル */
+    .step-separator {
+        display: flex;
+        align-items: center; /* 垂直方向の中央揃えを保証 */
+        justify-content: center;
+        margin: 0 6px;
+        flex-shrink: 0;
+    }
+    .step-separator::after {
+        content: '→';
+        font-size: 1.8em;
+        color: #333; 
+        font-weight: 300;
+        
+    }
+    
+    .step-card {
+        background-color: white;
+        padding: 15px 10px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        width: 160px;
+        min-width: 130px;
+        text-align: center;
+        transition: transform 0.3s;
+        flex-shrink: 1;
+    }
+    .step-card h3 {
+        font-size: 1em;
+        color: #333;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        text-align: center;
+        word-break: break-word;
+    }
+    
+    .step-number {
+        font-size: 1.2em; 
+        font-weight: bold;
+        color: #333; 
+        background-color: transparent; 
+        
+        /* サイズ設定を調整 */
+        width: auto; 
+        min-width: 0; 
+        padding: 0; 
+        height: auto;
+        line-height: 1.5;
+        border-radius: 0; 
+        
+        /* 中央揃え */
+        margin: 0 auto 5px auto; 
+        /* 下線のためにインラインブロックと幅を設定 */
+        display: inline-block; 
+        padding: 0 5px; /* 左右に少しパディングを付けて、下線を長く見せる */
+        text-align: center; 
+        position: relative; /* ::after疑似要素の基準点 */
+    }
+    
+    /* 下線（アンダーライン）のスタイル */
+    .step-number::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -5px; /* テキストからの距離 */
+        width: 100%;
+        height: 3px; 
+        /* JSで .step-number.style.setProperty('--step-color', '色コード') で設定される */
+        background-color: var(--step-color, #ccc); 
+        border-radius: 1.5px; /* 線の角丸 */
+    }
+    
+    /* 各手順の個別カラー設定 */
+    #step-number-1 { --step-color: #ffd400; } /* 手順1 */
+    #step-number-2 { --step-color: #007bff; } /* 手順2 */
+    #step-number-3 { --step-color: #28a745; } /* 手順3 */
+    #step-number-4 { --step-color: #d9534f; } /* 手順4 */
+    #step-number-5 { --step-color: #28a745; } /* 手順5 */
+    
+
+    .step-card p {
+        color: #666;
+        line-height: 1.5;
+        /* 中央揃えに設定 */
+        text-align: center; 
+    }
+
+    /* フッター */
+    .footer {
+      background-color: #333;
+      color: #aaa;
+      text-align: center;
+      padding: 30px 20px;
+      margin-top: 80px;
+    }
+    .cta-button i.fa-solid {
+        margin-right: 6px; 
+    }
+    .cta-button .button-icon {
+        width: 20px; 
+        height: 20px;
+        margin-left: 8px; 
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <header class="navbar">
+    <nav>
+      <ul class="nav-list">
+        <li><a href="javascript:void(0)" onclick="openForm(1)">1. 実験同意書</a></li>
+        <li><a href="http://localhost:8000/iga">2. システムA</a></li>
+        <li><a href="javascript:void(0)" onclick="openForm(2)">3. システムAのアンケート</a></li>
+        <li><a href="http://localhost:8001/iga">4. システムB</a></li>
+        <li><a href="javascript:void(0)" onclick="openForm(3)">5. システムBのアンケート</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div id="form-container" style="display: none; max-width: 900px; margin: 40px auto; padding: 0 20px; text-align: center;">
+    <iframe id="google-form-iframe" src="" width="100%" height="800" frameborder="0" marginheight="0" marginwidth="0" style="background: #fff; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.08);">読み込んでいます…</iframe>
+  </div>
+
+  <section class="page-header">
+    <h1>UI色彩デザイン生成システム</h1>
+  </section>
+
+  <section class="content-section" style="margin-top: 50px;">
+    <h2 class="section-title">テストへのご協力のお願い</h2>
+    <div class="section-text" style="max-width: 1100px;">
+      <p style="line-height: 1.8; text-align: center;">
+        このテストは、配色アルゴリズムの性能比較を目的としています。<br>
+        ご多忙のところ恐縮ですが、システムのご利用とアンケートへのご回答をお願いいたします。
+      </p>
+      
+      <h3 style="font-size: 1.6em; margin-bottom: 15px; color: #333;">システムAとシステムBについて</h3>
+      <p style="line-height: 1.8;">
+        本テストでは、異なる2つの配色生成ロジックの性能と使いやすさを比較検証します。<br>
+        各システムを利用する際は、「生成されたデザインの質」に注目して評価を行ってください。
+      </p>
+
+    </div>
+
+    
+    <div class="steps-container">
+        
+      <div class="step-card">
+          <div class="step-number" id="step-number-1">手順 1</div> 
+          <h3>実験同意書</h3> 
+      </div>
+      
+      <div class="step-separator"></div>
+
+      <div class="step-card">
+          <div class="step-number" id="step-number-2">手順 2</div> 
+          <h3>システムA</h3> 
+      </div>
+
+      <div class="step-separator"></div>
+
+      <div class="step-card">
+          <div class="step-number" id="step-number-3">手順 3</div> 
+          <h3>システムAのアンケート</h3>
+      </div>
+
+      <div class="step-separator"></div>
+
+      <div class="step-card">
+          <div class="step-number" id="step-number-4">手順 4</div> 
+          <h3>システムB</h3> 
+      </div>
+
+      <div class="step-separator"></div>
+
+      <div class="step-card">
+          <div class="step-number" id="step-number-5">手順 5</div> 
+          <h3>システムBのアンケート</h3>
+      </div>
+
+    </div>
+ 
+  </section>
+
+  <footer class="footer">
+    <p>© 2025 システムデザイン論研究室.</p>
+  </footer>
+
+  <script>
+
+    // 各フォームのURLを連想配列で管理
+    const formUrls = {
+      1: 'https://docs.google.com/forms/d/e/1FAIpQLScPxHbECly8gNhJoT1u5F_SIIaTlGb7JoKf7spWPLC1t5u9Pg/viewform?embedded=true', // 実験同意書
+      2: 'https://docs.google.com/forms/d/e/1FAIpQLSeKIF0wZsGqoAy5dvnccKm5H4tiTIwgB1ril8b-f1eKnLpo3w/viewform?embedded=true', // システムAのアンケート
+      3: 'https://docs.google.com/forms/d/e/1FAIpQLSctrLfXYgEP7IoE5HBamOwn0qd1CRrWWd8fsb9HoFnycNgVVA/viewform?embedded=true'  // システムBのアンケート
+    };
+
+    function openForm(id) {
+        const url = formUrls[id];
+        if (!url) return;
+
+      // 画面上の既存コンテンツ（ヘッダーや選択エリア）を隠す
+      const sections = document.querySelectorAll('.content-section, .page-header, .footer');
+      sections.forEach(el => el.style.display = 'none');
+
+      // iframeエリアを表示してURLをセット
+      const formContainer = document.getElementById('form-container');
+      const iframe = document.getElementById('google-form-iframe');
+      
+      if (formContainer && iframe) {
+        iframe.src = url;
+        formContainer.style.display = 'block';
+        // 画面トップへスクロール
+        window.scrollTo(0, 0);
+      }
+    }
+  </script>
+  
+</body>
+</html>
