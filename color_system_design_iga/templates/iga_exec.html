@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>UI色彩デザイン生成システム</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13uEwoYdYxR99Tz3w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    /* 基本スタイル */
+    body {
+      margin: 0;
+      padding-top: 60px;
+      font-family: 'Helvetica Neue', 'Arial', 'Hiragino Sans', 'Meiryo', sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    /* ナビゲーションバー */
+    .navbar {
+      background-color: #333;
+      color: white;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 30px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+      gap: 20px;
+    }
+
+    .nav-list li a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      transition: color 0.3s;
+    }
+
+    .nav-list li a:hover {
+      color: #ffcc00;
+    }
+
+    /* ページヘッダー */
+    .page-header {
+      padding: 10px 20px 50px;
+      text-align: center;
+      background: white;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .page-header h1 {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+    }
+
+    .page-header p {
+      font-size: 1.1em;
+      color: #666;
+      max-width: 900px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* セクション共通 */
+    .content-section {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    /* ジェネレータカード */
+    .generator-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+      padding: 30px 40px;
+      margin-bottom: 40px;
+    }
+
+    /* CTAボタン - 黄色、丸角化 (iga.htmlと統一) */
+    .cta-button {
+      background-color: #ffcc00;
+      color: #333;
+      padding: 10px 25px;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 12px;
+      /* iga.htmlと統一 */
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s, background-color 0.3s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-family: inherit;
+      min-width: 120px;
+      height: 42px;
+    }
+
+    .cta-button:hover:not(:disabled) {
+      background-color: #e6b800;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .cta-button:disabled {
+      background-color: #ccc;
+      color: #666;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* 終了ボタン専用スタイル */
+    .finish-button {
+      background-color: #ffcc00;
+      color: #333;
+    }
+
+    .finish-button:hover:not(:disabled) {
+      background-color: #e6b800;
+      border-color: #e6b800;
+      color: #333;
+    }
+
+    .finish-button:disabled {
+      background-color: #ccc;
+      border-color: #ccc;
+      color: #666;
+    }
+
+    /* ステップラベル */
+    .step-label {
+      display: inline-block;
+      padding: 5px 12px;
+      background-color: transparent;
+      color: #333;
+      font-weight: bold;
+      border-radius: 20px;
+      font-size: 0.9em;
+      margin-bottom: 5px;
+      border: 2px solid #ccc;
+    }
+
+    .step-label-container {
+      display: block;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    /* グリッド */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    /* Iframeカード - iga.htmlと同様のスタイル */
+    .iframe-wrapper {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      overflow: hidden;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s, box-shadow 0.3s, border 0.3s;
+      border: 3px solid transparent;
+      cursor: pointer;
+    }
+
+    .iframe-wrapper:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    /* 選択状態の色を黄色に統一 */
+    .iframe-wrapper.selected {
+      border-color: #ffcc00;
+      /* 選択時は黄色で強調 */
+      box-shadow: 0 10px 30px rgba(255, 204, 0, 0.4);
+      /* 黄色の影 */
+    }
+
+    .scaled-iframe {
+      transform: scale(0.4);
+      transform-origin: top left;
+      width: 250%;
+      height: 250%;
+      border: none;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* ボタン群(横並び) */
+    .iga-button-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin: 30px auto;
+      max-width: 900px;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .iga-button-group>* {
+      flex-grow: 0;
+      flex-shrink: 1;
+      flex-basis: auto;
+      min-width: 160px;
+    }
+
+    /* 区切り線とキャプション */
+    .ui-list-separator {
+      text-align: center;
+      margin: 40px auto 30px auto;
+      font-size: 1.3em;
+      color: #333;
+      font-weight: bold;
+      padding-top: 0;
+    }
+
+    /* モーダル */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.is-active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      width: 600px;
+      margin: 20px;
+    }
+
+    .modal-buttons {
+      margin-top: 25px;
+    }
+
+    /* モーダルボタンのスタイル (iga.htmlと統一) */
+    .modal-buttons button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 12px;
+      /* iga.htmlと統一 */
+      background-color: #ffcc00;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 16px;
+      transition: all 0.2s;
+      margin: 0 5px;
+    }
+
+    .modal-buttons button:hover {
+      background-color: #e6b800;
+      transform: translateY(-2px);
+    }
+
+    .modal-buttons button.cancel {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .modal-buttons button.cancel:hover {
+      background-color: #5a6268;
+    }
+
+    /* モーダル内プレビュー用 */
+    #selected-favorites-preview {
+      width: 65%;
+      height: 330px;
+      /* プレビューの高さを指定 */
+      overflow: hidden;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+
+    #selected-favorites-preview iframe {
+      width: 250%;
+      height: 250%;
+      border: none;
+      /* 0.5倍に縮小 */
+      transform: scale(0.437);
+      transform-origin: top left;
+    }
+    
+    .scaled-iframe-preview {
+      width: 250%;
+      height: 250%;
+      border: none;
+      /* 0.5倍に縮小 */
+      transform: scale(0.437);
+      transform-origin: top left;
+    }
+
+    /* 生成中モーダルをデザイン統一 */
+    #loading-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 20000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loading-content {
+      background: white;
+      color: #333;
+      padding: 40px 60px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      text-align: center;
+      max-width: 400px;
+      font-size: 1.2em;
+    }
+
+    .loading-content p {
+      margin: 15px 0 0 0;
+      font-weight: bold;
+    }
+
+    /* iga.htmlのフッターに色、幅を合わせる */
+    .footer {
+      background-color: #333;
+      color: #aaa;
+      text-align: center;
+      padding: 30px 20px;
+      margin-top: 80px;
+    }
+
+    /* スマートフォン向けレスポンシブ対応 */
+    @media (max-width: 768px) {
+      .iga-button-group {
+        flex-direction: column;
+        gap: 10px;
+        max-width: 350px;
+      }
+
+      .iga-button-group>* {
+        min-width: 100%;
+      }
+    }
+
+    /* 右上の評価回数バッジ */
+    .generation-counter-badge {
+      position: fixed;
+      top: 75px;
+      right: 20px;
+      background-color: #333;
+      color: #ffcc00;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.95em;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 999;
+    }
+
+  </style>
+</head>
+
+<body>
+  <header class="navbar">
+    <nav>
+      <ul class="nav-list">
+        <li><a href="javascript:void(0)" onclick="openForm(1)">1. 実験同意書</a></li>
+        <li><a href="http://localhost:8000/iga">2. システムA</a></li>
+        <li><a href="javascript:void(0)" onclick="openForm(2)">3. システムAのアンケート</a></li>
+        <li><a href="http://localhost:8001/iga">4. システムB</a></li>
+        <li><a href="javascript:void(0)" onclick="openForm(3)">5. システムBのアンケート</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div id="form-container" style="display: none; max-width: 900px; margin: 40px auto; padding: 0 20px; text-align: center;">
+    <iframe id="google-form-iframe" src="" width="100%" height="800" frameborder="0" marginheight="0" marginwidth="0" style="background: #fff; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.08);">読み込んでいます…</iframe>
+  </div>
+
+  <section class="page-header" id="page-header">
+    <h1>UI色彩デザイン生成システム<span style="color: #007bff;">（A）</span></h1>
+  </section>
+
+  <section class="content-section">
+    <div class="generator-card">
+      <label class="step-label-container">
+        <span class="step-label">Step 2</span>
+        好みを反映させた配色案に更新する
+      </label>
+
+      <div style="max-width: 900px; margin: 0 auto 10px auto; padding: 0 20px;">
+        <p style="font-size: 0.9em; color: #333; text-align: center; margin-top: 0; margin-bottom: 25px;">
+          表示された6つの配色案を下の<strong><span style="color: #007bff;"><span style="font-size: 1.3em;"> スライドバー </span></strong>を使って点数をつけてください。<br>
+          その後、画面下部の<strong>「好みを反映した配色案に更新」</strong>ボタンを押すことで、配色案が更新されます。<br>
+          この手順を10回繰り返し、理想の配色に近づけてください。<br><br>
+          10回目で、画面下部の<strong>「評価を終了して決定する」</strong>ボタンを押すことで、10回目の点数を表示し、システムAを終了します。
+        </p>
+
+
+
+      </div>
+      <p class="ui-list-separator" id="ui-list-separator-anchor">
+        配色案の一覧
+      </p>
+
+      <div id="generation-badge" class="generation-counter-badge">
+        評価回数: <span id="current-generation-num">1</span> / 10 回
+      </div>
+
+
+      <div>
+        <div class="grid-container" id="all-uis-container">
+        </div>
+      </div>
+      
+      <div class="iga-button-group">
+        <form id="iga-form" action="/iga_generate_repeat_prolog" method="post" style="text-align: center;">
+          <input type="hidden" name="favorites" id="favorites-input">
+          <input type="hidden" name="theme" id="theme-input">
+          <button type="submit" class="cta-button" disabled>好みを反映した配色案に更新</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+
+  <div id="limit-modal" class="modal">
+    <div class="modal-content">
+      <p id="limit-text"></p>
+      <div class="modal-buttons">
+        <button id="limit-ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading-modal" class="modal">
+    <div class="loading-content">
+      <i class="fas fa-spinner fa-spin fa-3x" style="color: #ffcc00;"></i>
+      <p>
+        更新中...<br>
+      </p>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>© 2025 システムデザイン論研究室.</p>
+  </footer>
+
+  <script>
+    const allUIData = [
+      { id: "FAVORITE_01", src: "{{ url_for('static', filename='iga/uis_html/ui_new_ver_f1.html') }}", isParent: true },
+      { id: "FAVORITE_02", src: "{{ url_for('static', filename='iga/uis_html/ui_new_ver_f2.html') }}", isParent: true }, 
+      { id: "IGA_01", src: "{{ url_for('static', filename='iga/uis_html/ui_new_ver_4.html') }}", isParent: false },
+      { id: "IGA_02", src: "{{ url_for('static', filename='iga/uis_html/ui_new_ver_5.html') }}", isParent: false },
+      { id: "IGA_03", src: "{{ url_for('static', filename='iga/uis_html/ui_new_ver_6.html') }}", isParent: false },
+      { id: "IGA_04", src: "{{ url_for('static', filename='iga/uis_html/ui_new_ver_7.html') }}", isParent: false }
+    ];
+
+    // 評価回数の管理(上限10回)
+    const MAX_GENERATIONS = 10;
+    let genCount = parseInt(localStorage.getItem("iga_generation_count") || "2", 10);
+
+    window.currentlySelectedFinalId = "";
+
+
+    // 各フォームのURLを連想配列で管理
+    const formUrls = {
+      1: 'https://docs.google.com/forms/d/e/1FAIpQLScPxHbECly8gNhJoT1u5F_SIIaTlGb7JoKf7spWPLC1t5u9Pg/viewform?embedded=true', // 実験同意書
+      2: 'https://docs.google.com/forms/d/e/1FAIpQLSeKIF0wZsGqoAy5dvnccKm5H4tiTIwgB1ril8b-f1eKnLpo3w/viewform?embedded=true', // システムAのアンケート
+      3: 'https://docs.google.com/forms/d/e/1FAIpQLSctrLfXYgEP7IoE5HBamOwn0qd1CRrWWd8fsb9HoFnycNgVVA/viewform?embedded=true'  // システムBのアンケート
+    };
+
+    function openForm(id) {
+      const url = formUrls[id];
+      if (!url) return;
+
+      // 画面上の既存コンテンツ（ヘッダーや選択エリア）を隠す
+      const sections = document.querySelectorAll('.content-section, .page-header, .footer');
+      sections.forEach(el => el.style.display = 'none');
+
+      // iframeエリアを表示してURLをセット
+      const formContainer = document.getElementById('form-container');
+      const iframe = document.getElementById('google-form-iframe');
+      
+      if (formContainer && iframe) {
+        iframe.src = url;
+        formContainer.style.display = 'block';
+        // 画面トップへスクロール
+        window.scrollTo(0, 0);
+      }
+    }
+
+    // 配列をシャッフルする関数 (Fisher-Yates (Knuth) Shuffle)
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // limit-modal の要素を取得
+      const limitModal = document.getElementById("limit-modal");
+      const limitOk = document.getElementById("limit-ok");
+      // loading-modal の要素を取得
+      const loadingModal = document.getElementById("loading-modal");
+
+      // 右上バッジの表示更新
+      const numSpan = document.getElementById("current-generation-num");
+      if (numSpan) numSpan.innerText = genCount;
+
+      // 10回目の場合、ボタン文言を「最終決定へ」に変更
+      const updateBtn = document.getElementById("update-button");
+      if (genCount >= MAX_GENERATIONS && updateBtn) {
+        updateBtn.innerText = "評価を終了して決定する";
+        updateBtn.disabled = false;
+      }
+
+      // UI描画・テーマ反映など
+      renderUIPages();
+
+      const selectedTheme = localStorage.getItem("selected_theme_iga") || "";
+      document.getElementById("theme-input").value = selectedTheme;
+
+      // limit-modal
+      limitOk.addEventListener("click", () => {
+        limitModal.classList.remove("is-active");
+      });
+    });
+
+    function updateButtonStates() {
+      const igaButton = document.querySelector("#iga-form .cta-button");
+
+      // 常にアクティブ
+      if (igaButton) {
+        // 10回目かどうかで文言を変更
+        if (genCount >= MAX_GENERATIONS) {
+          igaButton.textContent = "評価を終了して決定する";
+        } else {
+          igaButton.textContent = "好みを反映した配色案に更新";
+        }
+        igaButton.disabled = false;
+      }
+    }
+
+    function renderUIPages() {
+      const allUisContainer = document.getElementById("all-uis-container");
+      allUisContainer.innerHTML = "";
+
+      // allUIData をシャッフルしてから表示
+      shuffleArray(allUIData);
+
+      allUIData.forEach(ui => {
+        const wrapper = document.createElement("div");
+        // 縦並びのスタイルを軽く適用
+        wrapper.style.display = "flex";
+        wrapper.style.flexDirection = "column";
+        wrapper.style.alignItems = "center";
+        wrapper.style.marginBottom = "20px";
+
+        const iframeWrapper = document.createElement("div");
+        iframeWrapper.className = "iframe-wrapper";
+        iframeWrapper.setAttribute("data-ui-id", ui.id);
+        iframeWrapper.innerHTML = `<iframe class="scaled-iframe" src="${ui.src}" title="${ui.id}"></iframe>`;
+
+        // スライドバーコンテナの作成
+        const sliderContainer = document.createElement("div");
+        sliderContainer.style.width = "100%";
+        sliderContainer.style.textAlign = "center";
+        sliderContainer.style.marginTop = "10px";
+        sliderContainer.style.padding = "0 10px";
+        sliderContainer.style.boxSizing = "border-box";
+
+        sliderContainer.innerHTML = `
+          <div style="display: none;">
+            <label style="font-weight: bold; font-size: 0.95em;">評価点: </label>
+            <span id="score_text_${ui.id}">50</span>点
+          </div>
+          <input type="range" class="iga-slider" id="slider_${ui.id}" 
+                 min="0" max="100" value="50" step="1" 
+                 style="width: 85%; margin-top: 5px; cursor: pointer;"
+                 oninput="document.getElementById('score_text_${ui.id}').innerText = this.value">
+        `;
+
+        // IDラベル 
+        // wrapper.appendChild(idLabel);
+        wrapper.appendChild(iframeWrapper);
+        wrapper.appendChild(sliderContainer);
+        allUisContainer.appendChild(wrapper);
+      });
+
+      updateButtonStates();
+      setupFavorites();
+    }
+
+    // 無効化
+    function setupFavorites() {
+      const wrappers = document.querySelectorAll(".iframe-wrapper");
+      wrappers.forEach(wrapper => {
+        const uiId = wrapper.getAttribute("data-ui-id");
+      //   const storageKey = "favorite_" + uiId;
+
+        // カード全体をクリック可能に
+        wrapper.addEventListener("click", () => {
+          const isActive = wrapper.classList.contains("selected");
+
+          // 1つだけを選択した状態にするため、一度すべてのカードの黄色い枠（selected）をクリアする
+          document.querySelectorAll(".iframe-wrapper").forEach(el => {
+            el.classList.remove("selected");
+          });
+
+          if (isActive) {
+            // すでに自分が選択されていたなら、選択解除
+            window.currentlySelectedFinalId = "";
+          } else {
+            // 新しく自分を選択
+            wrapper.classList.add("selected");
+            window.currentlySelectedFinalId = uiId;
+          }
+          updateButtonStates();
+        });
+      });
+    }
+
+    // IGAフォーム送信処理の修正
+    document.getElementById("iga-form").addEventListener("submit", (e) => {
+      // スライドバーの評価取得
+      let scoreMap = {};
+      allUIData.forEach(ui => {
+        const slider = document.getElementById(`slider_${ui.id}`);
+        if (slider) scoreMap[ui.id] = parseInt(slider.value, 10);
+      });
+
+      // --- 10回目に達している場合は、サーバーへ送信せず終了モーダルを表示 ---
+      if (genCount >= MAX_GENERATIONS) {
+        e.preventDefault(); // 通常の再生成動作を停止
+
+        // 10回目の評価データをバックグラウンドでサーバー/GASへ送信する
+        const currentTheme = localStorage.getItem("selected_theme_iga") || "";
+        const formData = new FormData();
+        formData.append("favorites", JSON.stringify(scoreMap));
+        formData.append("theme", currentTheme);
+
+        // 送信中もローディングを表示
+        const loadingModal = document.getElementById("loading-modal");
+        if (loadingModal) loadingModal.style.display = "flex";
+
+        // 非同期（fetch）で送信を実行
+        fetch("/iga_generate_repeat_prolog", {
+          method: "POST",
+          body: formData
+        })
+        .then(() => {
+          console.log("10回目の評価スコアをスプレッドシートに送信完了");
+        })
+        .catch(err => {
+          console.error("10回目の送信エラー:", err);
+        })
+        .finally(() => {
+          // ローディングを非表示にする
+          if (loadingModal) loadingModal.style.display = "none";
+
+          // バーの上の点数を表示（DOM解禁）
+          allUIData.forEach(ui => {
+            const scoreTextContainer = document.getElementById(`score_text_${ui.id}`)?.parentElement;
+            if (scoreTextContainer) {
+              scoreTextContainer.style.display = "block";
+              scoreTextContainer.style.color = "#d9534f";
+              scoreTextContainer.style.fontWeight = "bold";
+            }
+          });
+
+          // ボタンを無効化して終了状態にする
+          const igaButton = document.querySelector("#iga-form .cta-button");
+          if (igaButton) {
+            igaButton.disabled = true;
+            igaButton.innerText = "評価が完了しました（結果表示中）";
+          }
+
+          // キャッシュのクリア処理
+          localStorage.removeItem("ui_generated");
+          localStorage.removeItem("iga_generation_count");
+          localStorage.removeItem("selected_theme_iga");
+          localStorage.removeItem("push_a");
+        });
+
+        return; // ここで処理を終了
+      }
+
+      // --- 1回〜9回目の場合は通常通りカウントアップして次の世代へ更新 ---
+      localStorage.setItem("iga_generation_count", (genCount + 1).toString());
+
+      const loadingModal = document.getElementById("loading-modal");
+      if (loadingModal) loadingModal.style.display = "flex";
+
+      document.getElementById("favorites-input").value = JSON.stringify(scoreMap);
+      document.getElementById("theme-input").value = localStorage.getItem("selected_theme_iga") || "";
+      localStorage.setItem("scroll_to_anchor", "true");
+    });
+
+  </script>
+</body>
+
+</html>

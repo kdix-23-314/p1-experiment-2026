@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>UI色彩デザイン生成システム</title>
+  <style>
+    /* 基本スタイル */
+    body {
+      margin: 0;
+      padding-top: 60px;
+      font-family: 'Helvetica Neue', 'Arial', 'Hiragino Sans', 'Meiryo', sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    /* ナビゲーションバー */
+    .navbar {
+      background-color: #333;
+      color: white;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+    }
+    .nav-list {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+      gap: 20px;
+    }
+    .nav-list li a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      transition: color 0.3s;
+    }
+    .nav-list li a:hover {
+      color: #ffcc00;
+    }
+
+    /* ページヘッダー */
+    .page-header {
+      padding: 10px 20px 70px;
+      text-align: center;
+      background: white;
+      border-bottom: 1px solid #ddd;
+    }
+    .page-header h1 {
+      font-size: 2.5em;
+      margin-bottom: 0; 
+      color: #2c3e50;
+    }
+    .page-header p {
+      font-size: 1.1em;
+      color: #666;
+      max-width: 1000px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    
+    /* メッセージのスタイル (カード内配置用に調整) */
+    .generator-card p {
+        margin: 5px 0;
+        font-size: 1.0em; 
+        color: #333; 
+        font-weight: normal; 
+    }
+    .generator-card p.main-message {
+        font-size: 1.1em;
+        font-weight: normal; 
+    }
+    #main-restriction-text {
+        color: #333; 
+        font-weight: normal; 
+    }
+    #next-step-guidance-in-card {
+        font-weight: normal; 
+        margin-top: 15px;
+        padding: 0; 
+        border-radius: 0; 
+        background-color: transparent; 
+        border: none; 
+        line-height: 1.8; 
+    }
+
+    /* セクション共通 */
+    .content-section {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    /* ジェネレータカード */
+    .generator-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+      padding: 30px 40px; 
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    /* CTAボタン */
+    .cta-button {
+      /* デフォルトは黄色（プライマリ） */
+      background-color: #ffcc00;
+      color: #333;
+      padding: 15px 30px;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s, background-color 0.3s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      font-family: inherit;
+      min-width: 250px; 
+      
+      /* ボタンの中央揃え修正 */
+      line-height: 1.2; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      
+      text-align: center; 
+    }
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+    
+    /* セカンダリCTA (枠線) */
+    .secondary-cta {
+      background-color: #fff;
+      border: 2px solid #ddd;
+      color: #666;
+    }
+    .secondary-cta:hover {
+      background-color: #f0f0f0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-color: #ccc;
+    }
+
+    /* ▼▼▼ 緑色のプライマリCTAスタイル (生成結果の固定色として流用) ▼▼▼ */
+    #question-btn.primary-green {
+      background-color: #28a745; /* Green */
+      color: white;
+    }
+    #question-btn.primary-green:hover {
+      background-color: #1e7e34;
+      color: white;
+    }
+    /* ▲▲▲ 緑色のプライマリCTAスタイル (生成結果の固定色として流用) ▲▲▲ */
+
+    /* ▼▼▼ システムB (赤) のプライマリCTAスタイル ▼▼▼ */
+    #systemb-btn.primary-red {
+      background-color: #d9534f; /* Red */
+      color: white;
+    }
+    #systemb-btn.primary-red:hover {
+      background-color: #c9302c;
+      color: white;
+    }
+    /* ▲▲▲ システムB (赤) のプライマリCTAスタイル ▲▲▲ */
+
+
+    /* ステップラベル */
+    .step-label-container {
+      display: block;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+      margin-top: 30px; /* メッセージとの分離用 */
+      text-align: center;
+    }
+
+    /* 選択されたUIの表示 */
+    .selected-ui-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+    .iframe-wrapper {
+      position: relative;
+      width: 350px;
+      height: 300px;
+      overflow: hidden;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.08); 
+      border: 1px solid #eee; 
+    }
+    .scaled-iframe {
+      transform: scale(0.4);
+      transform-origin: top left;
+      width: 250%;
+      height: 250%;
+      border: none;
+      display: block;
+    }
+    
+    /* アクションボタンエリア */
+    .action-buttons {
+      text-align: center;
+      margin-top: 30px;
+      display: flex; 
+      justify-content: center;
+      gap: 20px; 
+    }
+
+    /* フッター */
+    .footer {
+      background-color: #333;
+      color: #aaa;
+      text-align: center;
+      padding: 30px 20px;
+      margin-top: 80px;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="navbar">
+    <nav>
+      <ul class="nav-list">
+        <li><a href="{{ url_for('home') }}">はじめに</a></li>
+        <li><a href="{{ url_for('sample') }}">配色サンプル</a></li>
+        <li><a href="{{ url_for('iga') }}">システムA</a></li>
+        <li><a href="{{ url_for('index') }}">システムB</a></li>
+        <li><a href="{{ url_for('result') }}">生成結果</a></li>
+        <li><a href="{{ url_for('question') }}">アンケート</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="page-header">
+    <h1>UI色彩デザイン生成システム<span style="color: #007bff;">（A）</span></h1>
+  </section>
+
+  <section class="content-section">
+    
+    <div class="generator-card">
+      <div style="margin-bottom: 20px; text-align: center;">
+          <p class="main-message">
+              システムAでの配色案の決定が完了しました。
+          </p>
+          <div id="next-step-guidance-in-card" style="font-weight: normal; margin-top: 15px; line-height: 1.8;">
+          </div>
+      </div>
+      <label class="step-label-container">
+        選択した配色案
+      </label>
+      
+      <div class="selected-ui-container">
+        <div class="iframe-wrapper">
+          <iframe class="scaled-iframe" src="{{ selected_ui_src }}" title="{{ selected_ui_id }}"></iframe>
+          <div class="overlay">
+            <div class="ui-name">{{ selected_ui_id }}</div>
+            </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <a href="{{ url_for('result') }}" class="cta-button secondary-cta" id="question-btn">生成結果へ進む</a>
+        
+        <a href="{{ url_for('index') }}" class="cta-button" id="systemb-btn">続いてシステムBへ進む</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>© 2025 システムデザイン論研究室.</p>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // --- 固定色の定義 ---
+      const colorB = '#d9534f';   // システムB: 赤
+      const colorResult = '#28a745'; // 生成結果: 緑
+      
+      // --- 初期設定とLocalStorageのチェック ---
+      const systemA_UI_Src = "{{ selected_ui_src }}";
+      if (systemA_UI_Src && systemA_UI_Src !== "None" && systemA_UI_Src !== "") {
+        localStorage.setItem("final_ui_system_a", systemA_UI_Src);
+      }
+      
+      // システムBの完了状態をチェック
+      const final_B_Src = localStorage.getItem("final_ui_system_b"); 
+      const isSystemBCompleted = !!final_B_Src;
+
+
+      // --- 要素の取得 ---
+      const questionBtn = document.getElementById("question-btn"); 
+      const systembBtn = document.getElementById("systemb-btn");   
+      const guidance = document.getElementById("next-step-guidance-in-card"); 
+
+      // **注意: questionBtnのリンク先が 'result' に固定されています**
+      // questionBtn.href = "{{ url_for('result') }}"; // Flask環境でなくても動作するように、hrefはHTML側で直接指定済み
+
+
+      // --- 動的コンテンツの更新ロジック ---
+      if (isSystemBCompleted) {
+          // パターン 1: システムB完了済み -> 生成結果へ誘導
+          
+          // 1. メッセージカードの更新
+          guidance.style.color = colorResult; 
+          guidance.style.backgroundColor = 'transparent'; 
+          guidance.innerHTML = '【次のステップ】すべてのシステムでの配色案生成が完了しました。生成結果ページへ進んでください。';
+          
+          // 2. ボタンの表示/スタイル設定
+          if (systembBtn) systembBtn.style.display = 'none'; // システムBボタンを非表示
+          if (questionBtn) {
+            questionBtn.style.display = 'inline-block'; 
+            // 緑色を適用
+            questionBtn.classList.remove('secondary-cta');
+            questionBtn.classList.add('primary-green'); 
+          }
+
+      } else {
+          //パターン 2: システムB未完了 -> システムBへ誘導
+
+          // 1. メッセージカードの更新
+          guidance.style.color = colorB; 
+          guidance.style.backgroundColor = 'transparent'; 
+          guidance.innerHTML = '【次のステップ】続けてシステムBへ進んでください。';
+
+          // 2. ボタンの表示/スタイル設定
+          if (questionBtn) questionBtn.style.display = 'none'; // 生成結果ボタンを非表示
+          if (systembBtn) {
+            systembBtn.style.display = 'inline-block'; 
+            // システムBボタンを赤色で強調
+            systembBtn.classList.remove('secondary-cta'); 
+            systembBtn.classList.add('primary-red'); 
+          }
+      }
+
+      // モーダル関連のイベントリスナーは削除されました。
+    });
+  </script>
+</body>
+</html>

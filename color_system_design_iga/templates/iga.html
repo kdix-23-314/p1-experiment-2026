@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>UI色彩デザイン生成システム</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13uEwoYdYxR99Tz3w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    /* style.css の内容をここに統合 */
+
+    body {
+      margin: 0;
+      padding-top: 60px;
+      font-family: 'Helvetica Neue', 'Arial', 'Hiragino Sans', 'Meiryo', sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    .navbar {
+      background-color: #333;
+      color: white;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 30px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+      gap: 20px;
+    }
+
+    .nav-list li a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      transition: color 0.3s;
+    }
+
+    .nav-list li a:hover {
+      color: #ffcc00;
+    }
+
+    .page-header {
+      padding: 10px 20px;
+      text-align: center;
+      background: white;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .page-header h1 {
+      font-size: 2.5em;
+   
+      margin-bottom: 15px;
+    }
+    .content-section {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+     .cta-button {
+      background-color: #ffcc00;
+      color: #333;
+      padding: 10px 25px;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s, background-color 0.3s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-family: inherit;
+      min-width: 120px;
+      height: 42px;
+      display: flex;         /* フレックスコンテナにする */
+      justify-content: center; /* 水平方向（左右）の中央揃え */
+      align-items: center;
+    }
+    .cta-button:hover {
+      background-color: #e6b800;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .cta-button:hover:not(:disabled) {
+      background-color: #e6b800;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .cta-button:disabled {
+      background-color: #ccc;
+      color: #666;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .generator-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+      padding: 30px 40px;
+      margin-bottom: 40px;
+    }
+
+    .initial-generation-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+      text-align: center;
+    }
+    .generator-card .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      align-items: center;
+      margin-bottom: 0;
+    }
+    .generator-card .form-group label {
+      font-size: 1.5em;
+      color: #333;
+      font-weight: bold;
+      text-align: center;
+      display: block;
+    } 
+
+    .step-label {
+      display: inline-block;
+      padding: 5px 12px;
+      background-color: transparent;
+      color: #333;
+      font-weight: bold;
+      border-radius: 20px;
+      font-size: 0.9em;
+      margin-bottom: 5px;
+      border: 2px solid #ccc;
+    } 
+
+    .step-label.step-label-initial {
+      background-color: transparent;
+      color: #333;
+      border: 2px solid #ccc;
+    }
+     .step-label-container {
+      display: block;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+     .selection-and-button-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+      .custom-dropdown {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      flex-grow: 1;
+      user-select: none;
+      font-family: inherit;
+      margin-bottom: 0;
+    }
+
+    .dropdown-selected {
+      display: flex;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #fff;
+      align-items: center;
+      gap: 10px;
+      transition: border-color 0.2s;
+    }
+     .custom-dropdown:hover .dropdown-selected {
+      border-color: #999;
+    }
+
+    .dropdown-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      border: 1px solid #ccc;
+      border-top: none;
+      background: white;
+      z-index: 100;
+      display: none;
+      max-height: 250px;
+      overflow-y: auto;
+      border-radius: 0 0 8px 8px;
+    }
+    .dropdown-option {
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .dropdown-option:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .color-sample {
+      display: flex;
+      gap: 4px;
+      margin-left: auto;
+    }
+
+    .color-box {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid #ccc;
+    }
+    /* ... モーダル CSS ... */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+    }
+     .modal-content {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+     .modal-buttons {
+      margin-top: 25px;
+    }
+    .modal-buttons button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ffcc00;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .modal-buttons button:hover {
+      background-color: #e6b800;
+      transform: translateY(-2px);
+    }
+
+    .footer {
+      background-color: #333;
+      color: #aaa;
+      text-align: center;
+      padding: 30px 20px;
+      margin-top: 80px;
+    }
+
+     #loading-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      /* 背景色を少しだけ明るく調整し、透明度で操作をブロック */
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 20000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loading-content {
+      background: white;
+      color: #333;
+      padding: 40px 60px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      text-align: center;
+      max-width: 400px;
+      font-size: 1.2em;
+    }
+     .loading-content p {
+      margin: 15px 0 0 0;
+      font-weight: bold;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .iframe-wrapper {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      overflow: hidden;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s, box-shadow 0.3s, border 0.3s;
+      border: 3px solid transparent;
+      cursor: pointer;
+    }
+    .iframe-wrapper:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    }
+     .iframe-wrapper.selected {
+      border-color: #ffcc00;
+      box-shadow: 0 10px 30px rgba(255, 204, 0, 0.4);
+    }
+    .scaled-iframe {
+      transform: scale(0.4);
+      transform-origin: top left;
+      width: 250%;
+      height: 250%;
+      border: none;
+      display: block;
+      pointer-events: none;
+    }
+     .modal.is-active {
+        display: flex;
+    }
+
+    .tutorial-show-btn {
+      margin-top: 0px;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: #007bff; 
+      color: white; 
+      border: 2px solid #007bff;
+    }
+    .tutorial-show-btn:hover:not(:disabled) {
+        background-color: #007bff; 
+        border-color: #007bff;
+    }
+    .tutorial-show-btn i {
+        margin-right: 8px;
+    } 
+    #tutorial-modal .modal-content {
+      width: 720px; 
+      height: 600px; 
+      
+      margin: auto; 
+      padding: 0;
+      overflow: hidden;
+      max-width: none; 
+      position: relative; 
+    
+      text-align: left; 
+      display: flex;
+      flex-direction: column;
+    }
+   
+     .tutorial-slides-container {
+      width: 100%;
+      height: 540px;
+      flex-grow: 1; 
+    }
+
+    .tutorial-slide {
+      width: 100%;
+      min-height: auto; 
+      padding: 30px 10px; 
+      animation: fadeIn 0.3s ease-in-out;
+      box-sizing: border-box; 
+      display: none; 
+    }
+    .slide-content-wrapper {
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* 縦方向の中央寄せを適用 */
+      align-items: center;     /* 横方向の中央寄せを適用 */
+      flex-grow: 1;            /* 残りの高さを全て取得 */
+      width: 100%;             /* 親要素の横幅に合わせる */
+    }
+    .tutorial-slide.active-slide {
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      height: 100%; 
+    }
+     @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+     .tutorial-slide h3 {
+      font-size: 1.8em;
+      margin-top: 0;
+      margin-bottom: 0px;
+      color: #333;
+      border-bottom: 2px solid #ffcc00;
+      padding-bottom: 0px;
+      display: block; 
+      width: fit-content; 
+      margin-left: auto;
+      margin-right: auto;
+    }
+     .tutorial-slide p {
+      font-size: 1.1em; 
+      line-height: 1.6;
+      margin-top: 0;
+      margin-bottom: 10px; 
+      text-align: center; 
+      max-width: 90%; 
+    }
+
+    .tutorial-slide p strong {
+      color: #333;
+      font-weight: bold; 
+    }
+    .tutorial-image-placeholder {
+      display: block;
+      width: 100%;
+      height: 150px;
+      background-color: #f4f4f9;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      margin: 20px auto; 
+      text-align: center;
+      line-height: 150px;
+      color: #888;
+      font-style: italic;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+     /* 画像配置コンテナ */
+    .tutorial-image-container {
+        display: flex;
+        justify-content: center;
+        margin: 10px 0; 
+    }
+    
+    .tutorial-image-container img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
+    .tutorial-navigation {
+      background-color: #f1f1f1;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #eee;
+      position: absolute; 
+      bottom: 0;
+      width: 100%;
+      box-sizing: border-box; 
+    }
+
+    #tutorial-indicator {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #555;
+    }
+    
+     .tutorial-navigation .modal-btn {
+      padding: 8px 25px;
+      margin: 0;
+      margin-left: 10px;
+      border-radius: 8px; 
+      border: none;      
+    }
+    
+    #tutorial-next,
+    #tutorial-finish {
+      background-color: #ffcc00;
+      border-color: #ffcc00;
+      font-weight: bold;
+      color: #333;
+    }
+
+     #tutorial-prev {
+      background-color: #c8c7c7;
+      border-color: #f0f0f0;
+      color: #333;
+    }
+
+    #tutorial-prev:hover {
+      background-color: #ddd;
+    }
+    #tutorial-next:hover,
+    #tutorial-finish:hover {
+      background-color: #e6b800;
+      transform: translateY(-2px);
+    }
+
+     /* Step 1 専用の画像高さ設定 */
+    .tutorial-image-step1 {
+        max-height: 150px; 
+    }
+    /* Step 2 専用の画像高さ設定 */
+    .tutorial-image-step2 {
+        max-height: 200px; 
+    }
+    .tutorial-image-step2-1 {
+        max-height: 100px; 
+    }
+    .tutorial-image-step3-2 {
+      max-height: 100px;
+    }
+
+    /*index.htmlにないやつ*/
+    /* チュートリアルボタン用のコンテナ */
+    .step2-header-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    #iga-execution-top {
+      text-align: center;
+      margin-top: 40px; 
+      display: none
+    }
+    #iga-form-top {
+      display: inline-block;
+    }
+
+    /* モーダルボタンも黄色に戻す */
+    #limit-ok {
+      background-color: #ffcc00;
+      color: #333;
+      font-weight: bold;
+    }
+
+    /* 右上の評価回数バッジ */
+    .generation-counter-badge {
+      position: fixed;
+      top: 75px;
+      right: 20px;
+      background-color: #333;
+      color: #ffcc00;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.95em;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 999;
+    }
+ 
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <nav>
+      <ul class="nav-list">
+        <li><a href="javascript:void(0)" onclick="openForm(1)">1. 実験同意書</a></li>
+        <li><a href="http://localhost:8000/iga">2. システムA</a></li>
+        <li><a href="javascript:void(0)" onclick="openForm(2)">3. システムAのアンケート</a></li>
+        <li><a href="http://localhost:8001/iga">4. システムB</a></li>
+        <li><a href="javascript:void(0)" onclick="openForm(3)">5. システムBのアンケート</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <div id="form-container" style="display: none; max-width: 900px; margin: 40px auto; padding: 0 20px; text-align: center;">
+    <iframe id="google-form-iframe" src="" width="100%" height="800" frameborder="0" marginheight="0" marginwidth="0" style="background: #fff; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.08);">読み込んでいます…</iframe>
+  </div>
+
+  <section class="page-header" id="page-header">
+    <h1>UI色彩デザイン生成システム<span style="color: #007bff;">（A）</span></h1>
+    <button type="button" id="show-tutorial-btn" class="cta-button tutorial-show-btn">使い方ガイド</button>
+  </section>
+
+
+  <section class="content-section">
+    <div class="generator-card" id="initial-generation-card">
+      <form action="/iga_early" method="post" class="initial-generation-form">
+
+        <div class="form-group">
+          <label for="theme">
+            <span class="step-label step-label-initial">Step 1</span>
+            テーマ選択と配色案の生成
+          </label>
+          <p style="font-size: 0.9em; color: #333; margin-top: 0; margin-bottom: 15px;">
+           配色に用いるテーマを選択し、「生成」ボタンを押してください。<br>
+          </p>
+
+          <div class="selection-and-button-group">
+            <div class="custom-dropdown" id="theme-dropdown">
+              <div class="dropdown-selected">-- テーマを選択 --</div>
+              <div class="dropdown-options"></div>
+            </div>
+            <input type="hidden" name="theme" id="selected-theme">
+            <button type="submit" class="cta-button">生成</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <div id="generation-badge" class="generation-counter-badge">
+    評価回数: <span id="current-generation-num">1</span> / 10 回
+  </div>
+
+  <section class="content-section">
+    <div class="generator-card" id="ui-grid-section-combined">
+
+      <div class="step2-header-container">
+        <label for="ui-selection" class="step-label-container">
+          <span class="step-label">Step 2</span>
+          好みを反映させた配色案に更新する
+        </label>
+      </div>
+
+      <p style="font-size: 0.9em; color: #333; text-align: center; margin-top: 0; margin-bottom: 25px;">
+        表示された6つの配色案を下の<strong><span style="color: #007bff;"><span style="font-size: 1.3em;"> スライドバー </span></strong>を使って点数をつけてください。<br>
+        その後、画面下部の<strong>「好みを反映した配色案に更新」</strong>ボタンを押すことで、配色案が更新されます。<br>
+        この手順を10回繰り返し、理想の配色に近づけてください。
+      </p>
+
+      <div>
+        <div class="grid-container" id="ui-selection-grid" style="display: none;">
+      </div>
+      </div>
+
+
+      <div id="iga-execution-top">
+        <form id="iga-form-top" action="/iga_generate_prolog" method="post">
+          <input type="hidden" name="favorites" id="favorites-input-top">
+          <input type="hidden" name="theme" id="theme-input-top">
+          <button type="submit" class="cta-button" disabled>好みを反映した配色案に更新</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <div id="limit-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <p id="limit-text"></p>
+      <div class="modal-buttons">
+        <button id="limit-ok">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading-modal" style="display: none;">
+    <div class="loading-content">
+      <i class="fas fa-spinner fa-spin fa-3x" style="color: #ffcc00;"></i>
+      <p>
+        更新中...<br>
+      </p>
+    </div>
+  </div>
+  
+  <div id="tutorial-modal" class="modal">
+    <div class="modal-content tutorial-content">
+      <div class="tutorial-slides-container">
+        <div class="tutorial-slide active-slide" data-step="1">
+          <h3><span style="color: #007bff;">システムA</span> 使い方ガイド</h3>
+          <div class="slide-content-wrapper">
+              <p style="font-size: 20px;"><strong><span style="font-size: 1.1em; font-weight: bold;"><span style="color: #007bff;">システムA</span>のチュートリアルです。<br><br>
+                  よく読んでから<span style="color: #007bff;">システムA</span>を実行するようお願いいたします。</span><br><br><br></strong>
+              </p>
+          </div>
+        </div>
+
+        <div class="tutorial-slide" data-step="2">
+          <h3>Step 1：テーマ選択と配色案の生成</h3>
+          <div class="slide-content-wrapper">
+              <p>はじめに、配色に用いる「テーマ」を選択してください。</p><br>
+              
+              <div class="tutorial-image-container">
+                <img src="{{ url_for('static', filename='tutorial/sysa_step1.png') }}"  class="tutorial-image-step1" style="box-shadow: 0 5px 15px #b4b4b4;">
+              </div>
+              <br>
+              <p>テーマを選択した後、<strong>「生成」</strong>ボタンを押すと<br><br>
+                選んだテーマに基づいて6つの配色案が生成されます。
+              </p>
+          </div>
+        </div>
+
+       <div class="tutorial-slide" data-step="3">
+          <h3>Step 2-1：好みを反映させた配色案に更新する</h3>
+          <div class="slide-content-wrapper">
+              <p>生成された6つの配色案を下の<br><br>
+                <strong><span style="font-size: 1.1em;">スライドバー</span></strong>を使って点数をつけてください</p>
+              <div class="tutorial-image-container">
+                 <img src="{{ url_for('static', filename='tutorial/sysa_step2.png') }}"  class="tutorial-image-step2" style="box-shadow: 0 5px 15px #b4b4b4;"> 
+              </div>
+          </div>
+        </div>
+
+       <div class="tutorial-slide" data-step="4">
+          <h3>Step 2-2：好みを反映させた配色案に更新する</h3>
+          <div class="slide-content-wrapper">
+              <p style="max-width: 100%;">点数評価が終わったら、<strong>「好みを反映した配色案に更新」</strong>ボタンを押してください。<br><br>
+                ボタンを押すと、新しい配色案に更新されます。<br><br>
+              </p>
+              <div class="tutorial-image-container">
+                 <img src="{{ url_for('static', filename='tutorial/sysa_step2-1.png') }}" class="tutorial-image-step2-1" style="box-shadow: 0 5px 15px #b4b4b4;"> 
+              </div><br>
+              <p>この手順を10回繰り返して、理想の配色に近づけてください。</p>
+          </div>
+        </div>
+
+        <div class="tutorial-slide" data-step="5">
+          <h3>Step 2-3：配色案を決定する</h3>
+          <div class="slide-content-wrapper">
+              <p>
+                10回目の画面で<strong>「評価を終了して決定する」</strong>ボタンが表示されます。<br><br><br>
+              </p>
+              <p>評価が完了したら<strong>「評価を終了して決定する」</strong>ボタンを押してください。<br><br>
+                10回目でつけた点数が表示されます。
+              </p>
+              <div class="tutorial-image-container">
+                 <img src="{{ url_for('static', filename='tutorial/sysa_step3-2.png') }}"  class="tutorial-image-step3-2" style="box-shadow: 0 5px 15px #b4b4b4;">
+              </div>
+          </div>
+        </div>
+
+        
+      </div>
+
+      <div class="tutorial-navigation">
+        <span id="tutorial-indicator">1 / 5</span>
+        <div>
+          <button id="tutorial-prev" class="modal-btn" style="display: none;">前へ</button>
+          <button id="tutorial-next" class="modal-btn">次へ</button>
+          <button id="tutorial-finish" class="modal-btn" style="display: none;">完了</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <footer class="footer">
+    <p>© 2025 システムデザイン論研究室. </p>
+  </footer>
+
+  <script>
+    // ======== JavaScript ========
+    
+    // --- Step 1 ボタンの状態管理変数 ---
+    const PUSH_A_STORAGE_KEY = "push_a";
+    // ----------------------------------------
+
+
+    // 各フォームのURLを連想配列で管理
+    const formUrls = {
+      1: 'https://docs.google.com/forms/d/e/1FAIpQLScPxHbECly8gNhJoT1u5F_SIIaTlGb7JoKf7spWPLC1t5u9Pg/viewform?embedded=true', // 実験同意書
+      2: 'https://docs.google.com/forms/d/e/1FAIpQLSeKIF0wZsGqoAy5dvnccKm5H4tiTIwgB1ril8b-f1eKnLpo3w/viewform?embedded=true', // システムAのアンケート
+      3: 'https://docs.google.com/forms/d/e/1FAIpQLSctrLfXYgEP7IoE5HBamOwn0qd1CRrWWd8fsb9HoFnycNgVVA/viewform?embedded=true'  // システムBのアンケート
+    };
+
+    function openForm(id) {
+        const url = formUrls[id];
+        if (!url) return;
+
+      // 画面上の既存コンテンツ（ヘッダーや選択エリア）を隠す
+      const sections = document.querySelectorAll('.content-section, .page-header, .footer');
+      sections.forEach(el => el.style.display = 'none');
+
+      // iframeエリアを表示してURLをセット
+      const formContainer = document.getElementById('form-container');
+      const iframe = document.getElementById('google-form-iframe');
+      
+      if (formContainer && iframe) {
+        iframe.src = url;
+        formContainer.style.display = 'block';
+        // 画面トップへスクロール
+        window.scrollTo(0, 0);
+      }
+    }
+
+
+    // フォーム送信時にお気に入り状態をクリア
+    document.querySelector('form[action="/iga_early"]').addEventListener('submit', (e) => {
+      
+      // --- push_a が true の場合は処理を中断し、ボタンを無効化状態にする ---
+      if (localStorage.getItem(PUSH_A_STORAGE_KEY) === "true") {
+          e.preventDefault(); // フォーム送信を阻止
+          // すでに true の場合は、念のためボタンを無効化
+          const generateButton = document.querySelector('form[action="/iga_early"] .cta-button');
+          if (generateButton) {
+            generateButton.disabled = true;
+            generateButton.textContent = "生成済み"; // ユーザーに状態を伝える
+          }
+          alert("Step 1の生成は一度しか実行できません。"); // ユーザーへのフィードバック
+          return; 
+      }
+      // ----------------------------------------------------------------------
+      
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith("favorite_")) {
+          localStorage.removeItem(key);
+        }
+      });
+      localStorage.removeItem("favorite_order");
+      localStorage.removeItem("favorite_files");
+
+      // UI生成フラグをセット
+      localStorage.setItem("ui_generated", "true");
+
+      // --- ボタンが押されたので push_a を true に設定し、永続化 ---
+      localStorage.setItem(PUSH_A_STORAGE_KEY, "true");
+      // ----------------------------------------------------------------------
+
+      // ロード画面表示を追加
+      const loadingModal = document.getElementById("loading-modal");
+      if (loadingModal) {
+        loadingModal.style.display = "flex";
+      }
+    });
+
+    // テーマデータ (変更なし)
+    const themes = [
+      { name: "TEL_Test_light", colors: ["#6E899E", "#C7C9C9", "#9DC3DE", "#61706F", "#9FA0A0", "#EFEFEF"] },
+      { name: "TEL_Test_dark", colors: ["#6E899E", "#C7C9C9", "#9DC3DE", "#61706F", "#9FA0A0", "#3E3939"] },
+      { name: "blue_light_2", colors: ["#9DC3DE", "#FFFFFF", "#6E899E", "#C9CACA", "#C1D69C", "#EFEFEF"] },
+      { name: "blue_dark_2", colors: ["#9DC3DE", "#FFFFFF", "#6E899E", "#C9CACA", "#C1D69C", "#3E3939"] },
+      { name: "pink_light_2", colors: ["#857079", "#EAD4DE", "#C55385", "#E083A8", "#BAA6C6", "#EFEFEF"] },
+      { name: "pink_dark_2", colors: ["#857079", "#EAD4DE", "#C55385", "#E083A8", "#BAA6C6", "#3E3939"] }
+    ];
+
+    // ドロップダウン機能 (変更なし)
+    const dropdown = document.getElementById("theme-dropdown");
+    const selected = dropdown.querySelector(".dropdown-selected");
+    const options = dropdown.querySelector(".dropdown-options");
+    const hiddenInput = document.getElementById("selected-theme");
+
+    selected.addEventListener("click", () => {
+      options.style.display = options.style.display === "block" ? "none" : "block";
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!dropdown.contains(e.target)) {
+        options.style.display = "none";
+      }
+    });
+
+    themes.forEach(theme => {
+      const option = document.createElement("div");
+      option.className = "dropdown-option";
+      option.innerHTML = `
+      <div>${theme.name}</div>
+      <div class="color-sample">
+        ${theme.colors.map(color => `<div class="color-box" style="background-color:${color};"></div>`).join('')}
+      </div>
+    `;
+      option.addEventListener("click", () => {
+        selected.innerHTML = option.innerHTML;
+        hiddenInput.value = theme.name;
+        options.style.display = "none";
+        localStorage.setItem("selected_theme_iga", theme.name);
+      });
+      options.appendChild(option);
+    });
+
+    const savedTheme = localStorage.getItem("selected_theme_iga");
+    if (savedTheme) {
+      const themeOption = Array.from(options.children).find(opt => opt.textContent.includes(savedTheme));
+      if (themeOption) {
+        selected.innerHTML = themeOption.innerHTML;
+        hiddenInput.value = savedTheme;
+      }
+    }
+
+
+    // UIデータ (変更なし)
+    const allUIData = [
+      { id: "IGA_01", src: "{{ url_for('static', filename='iga/uis_html/ui_new_ver_4.html') }}" },
+      { id: "IGA_02", src: "{{ url_for('static', filename='iga/uis_html/ui_new_ver_5.html') }}" },
+      { id: "IGA_03", src: "{{ url_for('static', filename='iga/uis_html/ui_new_ver_6.html') }}" },
+      { id: "IGA_04", src: "{{ url_for('static', filename='iga/uis_html/ui_new_ver_7.html') }}" },
+      { id: "IGA_05", src: "{{ url_for('static', filename='iga/uis_html/ui_new_ver_8.html') }}" },
+      { id: "IGA_06", src: "{{ url_for('static', filename='iga/uis_html/ui_new_ver_9.html') }}" }
+    ];
+
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    let limitModal;
+    let loadingModal;
+    // チュートリアル関連の変数を宣言
+    let tutorialModal;
+    let tutorialSlides;
+    let tutorialPrev;
+    let tutorialNext;
+    let tutorialFinish;
+    let tutorialIndicator;
+    let currentTutorialStep = 0; 
+    const TUTORIAL_STORAGE_KEY = "systemA_tutorial_shown_v1"; 
+    //UIグリッドとボタンのコンテナ要素を取得
+    const uiGrid = document.getElementById("ui-selection-grid");
+    const igaExecutionTop = document.getElementById("iga-execution-top");
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // 初めて画面に来た時に localStorage を完全にクリアする
+      if (localStorage.getItem("ui_generated") !== "true") {
+        localStorage.removeItem("selected_theme_iga");
+        localStorage.removeItem("push_a");
+        localStorage.clear(); // 全削除
+      }
+
+      limitModal = document.getElementById("limit-modal");
+      loadingModal = document.getElementById("loading-modal");
+      
+      // チュートリアル関連の要素を取得
+      tutorialModal = document.getElementById("tutorial-modal");
+      // DOMContentLoaded時に再度取得することで、全スライド数を正しく認識させる
+      tutorialSlides = document.querySelectorAll(".tutorial-slide"); 
+      tutorialPrev = document.getElementById("tutorial-prev");
+      tutorialNext = document.getElementById("tutorial-next");
+      tutorialFinish = document.getElementById("tutorial-finish");
+      tutorialIndicator = document.getElementById("tutorial-indicator");
+
+      document.getElementById("limit-ok").addEventListener("click", () => {
+        limitModal.style.display = "none";
+      });
+
+      //UI生成済みの場合の表示ロジック
+      if (localStorage.getItem("ui_generated") === "true") {
+        if (uiGrid) uiGrid.style.display = "grid"; // UIグリッドを表示
+        if (igaExecutionTop) igaExecutionTop.style.display = "block"; // ボタンコンテナを表示
+        renderUIPage();
+      } else {
+        // UI生成前は非表示
+        if (uiGrid) uiGrid.style.display = "none";
+        if (igaExecutionTop) igaExecutionTop.style.display = "none";
+      }
+
+      updateIgaButtonState();
+      
+      // --- Step 1 ボタンの初期状態を決定するロジック ---
+      const generateButton = document.querySelector('form[action="/iga_early"] .cta-button');
+      if (generateButton) {
+        if (localStorage.getItem(PUSH_A_STORAGE_KEY) === "true") {
+          generateButton.disabled = true;
+          generateButton.textContent = "生成済み"; // 状態変更に合わせてボタンテキストも変更
+        } else {
+          generateButton.disabled = false;
+          generateButton.textContent = "生成";
+        }
+      }
+      // --------------------------------------------------------
+      
+      // ★★★ チュートリアル機能のロジック ★★★
+      function updateTutorialView() {
+          if (!tutorialSlides || tutorialSlides.length === 0) return;
+          
+          const totalSlides = tutorialSlides.length;
+
+          // display: flex/none を切り替える
+          tutorialSlides.forEach((slide, index) => {
+              // 画面に表示されるのは active-slide クラスを持つスライドのみ
+              if (index === currentTutorialStep) {
+                  slide.classList.add("active-slide");
+              } else {
+                  slide.classList.remove("active-slide");
+              }
+          });
+
+          // インジケータを更新 (例: 1 / 4)
+          tutorialIndicator.textContent = `${currentTutorialStep + 1} / ${totalSlides}`;
+          
+          // ナビゲーションボタンの表示/非表示を更新
+          tutorialPrev.style.display = (currentTutorialStep === 0) ? "none" : "inline-block";
+          tutorialNext.style.display = (currentTutorialStep === totalSlides - 1) ? "none" : "inline-block";
+          tutorialFinish.style.display = (currentTutorialStep === totalSlides - 1) ? "inline-block" : "none";
+      }
+
+      // 初回表示チェックと初期化処理を統合
+      if (tutorialModal && tutorialSlides.length > 0) {
+          // 初回強制表示ロジックは削除し、初期ステップをセット
+          currentTutorialStep = 0; 
+          // 初回/再表示に関わらず、ビューの初期状態を反映
+          updateTutorialView(); 
+          
+          // 【修正追加】 初回アクセス時にチュートリアルを強制表示するロジックを復活
+          const tutorialShown = localStorage.getItem(TUTORIAL_STORAGE_KEY);
+          if (!tutorialShown) {
+              tutorialModal.classList.add("is-active");
+          }
+          // 【修正追加 終わり】
+      }
+
+      // ナビゲーションボタンのイベントリスナー (変更なし)
+      if (tutorialNext) {
+          tutorialNext.addEventListener("click", () => {
+              if (currentTutorialStep < tutorialSlides.length - 1) {
+                  currentTutorialStep++;
+                  updateTutorialView();
+              }
+          });
+      }
+
+      if (tutorialPrev) {
+          tutorialPrev.addEventListener("click", () => {
+              if (currentTutorialStep > 0) {
+                  currentTutorialStep--;
+                  updateTutorialView();
+              }
+          });
+      }
+
+      if (tutorialFinish) {
+          tutorialFinish.addEventListener("click", () => {
+              tutorialModal.classList.remove("is-active");
+              localStorage.setItem(TUTORIAL_STORAGE_KEY, "true"); 
+          });
+      }
+      
+      // 「使い方ガイド」ボタン機能 (変更なし)
+      const showTutorialBtn = document.getElementById("show-tutorial-btn");
+      if (showTutorialBtn && tutorialModal) { 
+          showTutorialBtn.addEventListener("click", () => {
+              currentTutorialStep = 0; // 常に1ページ目（Step 1）から表示
+              updateTutorialView(); 
+              tutorialModal.classList.add("is-active"); 
+          });
+      }
+      // ★★★ チュートリアル機能のロジック 終わり ★★★
+
+    });
+
+    // IGA実行ボタンの状態を更新する関数 (変更なし)
+    function updateIgaButtonState() {
+      const igaButtonTop = document.querySelector("#iga-form-top .cta-button");
+
+      if (igaButtonTop) {
+        // スライドバー方式では初期状態で一律50点が入るため、最初から送信可能です
+        igaButtonTop.textContent = "好みを反映した配色案に更新";
+        igaButtonTop.disabled = false; // 常に有効化
+      }
+    }
+
+    // UIページのレンダリング (変更なし)
+    function renderUIPage() {
+      const grid = document.querySelector(".grid-container");
+      grid.innerHTML = "";
+      const shuffledUIData = shuffleArray(allUIData);
+
+      shuffledUIData.forEach(ui => {
+        const wrapper = document.createElement("div");
+        // スライドバーを下に配置するため、縦並びのスタイルを軽く適用
+        wrapper.style.display = "flex";
+        wrapper.style.flexDirection = "column";
+        wrapper.style.alignItems = "center";
+        wrapper.style.marginBottom = "20px";
+
+        // 外枠カード部分（クリック時の selected クラス付与は廃止するため無効化）
+        const iframeWrapper = document.createElement("div");
+        iframeWrapper.className = "iframe-wrapper";
+        iframeWrapper.setAttribute("data-ui-id", ui.id);
+        iframeWrapper.setAttribute("data-ui-src", ui.src);
+        iframeWrapper.innerHTML = `<iframe class="scaled-iframe" src="${ui.src}" title="${ui.id}"></iframe>`;
+
+        // 【追加】スライドバーコンテナの作成
+        const sliderContainer = document.createElement("div");
+        sliderContainer.style.width = "100%";
+        sliderContainer.style.textAlign = "center";
+        sliderContainer.style.marginTop = "10px";
+        sliderContainer.style.padding = "0 10px";
+        sliderContainer.style.boxSizing = "border-box";
+
+        sliderContainer.innerHTML = `
+          <div style="display: none;">
+            <label style="font-weight: bold; font-size: 0.95em;">評価点: </label>
+            <span id="score_text_${ui.id}">50</span>点
+          </div>
+          <input type="range" class="iga-slider" id="slider_${ui.id}" 
+                 min="0" max="100" value="50" step="1" 
+                 style="width: 85%; margin-top: 5px; cursor: pointer;"
+                 oninput="document.getElementById('score_text_${ui.id}').innerText = this.value">
+        `;
+
+        // 要素を組み立ててグリッドに追加
+        // wrapper.appendChild(idLabel);
+        wrapper.appendChild(iframeWrapper);
+        wrapper.appendChild(sliderContainer);
+        grid.appendChild(wrapper);
+      });
+
+      // クリックイベントのセットアップ（setupFavorites）は不要になったため呼び出しを廃止
+      updateIgaButtonState();
+    }
+
+    // IGA実行フォームの処理 (変更なし)
+    document.getElementById("iga-form-top").addEventListener("submit", (e) => {
+      const loadingModal = document.getElementById("loading-modal"); // ロードモーダル要素を取得
+
+      // 6つのスライドバーからすべての点数データを回収して辞書（オブジェクト）を作成
+      let scoreMap = {};
+      allUIData.forEach(ui => {
+        const slider = document.getElementById(`slider_${ui.id}`);
+        if (slider) {
+          scoreMap[ui.id] = parseInt(slider.value, 10);
+        }
+      });
+
+      console.log("Pythonへ送信するスコアマップ:", scoreMap);
+
+
+      // フォーム送信（遷移）前にロード画面を表示する
+      if (loadingModal) {
+        loadingModal.style.display = "flex";
+      }
+
+      // フォームのhidden inputに値をセット
+      document.getElementById("favorites-input-top").value = JSON.stringify(scoreMap);
+
+      // selected_theme も送信
+      const selectedTheme = localStorage.getItem("selected_theme_iga") || "";
+      document.getElementById("theme-input-top").value = selectedTheme;
+
+      // フォームを続行 (e.preventDefault() を呼んでいないため、次のページに遷移します)
+    });
+  </script>
+</body>
+
+</html>

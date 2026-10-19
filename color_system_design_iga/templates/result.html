@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>UI色彩デザイン生成システム</title>
+  <style>
+    /* 基本スタイル */
+    body {
+      margin: 0;
+      padding-top: 60px;
+      font-family: 'Helvetica Neue', 'Arial', 'Hiragino Sans', 'Meiryo', sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    /* ナビゲーションバー */
+    .navbar {
+      background-color: #333;
+      color: white;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+    }
+    .nav-list {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+      gap: 20px;
+    }
+    .nav-list li a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      transition: color 0.3s;
+    }
+    .nav-list li a:hover {
+      color: #ffcc00;
+    }
+
+    /* ページヘッダー */
+    .page-header {
+      padding: 10px 20px 50px;
+      text-align: center;
+      background: white;
+      border-bottom: 1px solid #ddd;
+    }
+    .page-header h1 {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+      
+    }
+    .page-header p {
+      font-size: 1.1em;
+      color: #666;
+      max-width: 650px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* セクション共通 */
+    .content-section {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    /* ジェネレータカード */
+    .generator-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+      padding: 30px 40px;
+      margin-bottom: 40px;
+    }
+
+    /* CTAボタン */
+    .cta-button {
+      background-color: #ffcc00;
+      color: #333;
+      padding: 15px 30px;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s, background-color 0.3s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      font-family: inherit;
+      min-width: 200px;
+    }
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+    .secondary-cta {
+      background-color: #fff;
+      border: 2px solid #ddd;
+      color: #666;
+      margin: 5px;
+    }
+    .secondary-cta:hover {
+      background-color: #f0f0f0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-color: #ccc;
+    }
+    
+    .primary-action {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+        margin: 5px;
+    }
+    .primary-action:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+        color: white;
+    }
+
+    /* ステップラベル */
+    .step-label {
+      display: inline-block;
+      padding: 5px 12px;
+      background-color: #ffcc00;
+      color: #333;
+      font-weight: bold;
+      border-radius: 20px;
+      font-size: 0.9em;
+      margin-bottom: 5px;
+    }
+    .step-label-container {
+      display: block;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    /* 選択されたUIの表示 */
+    .selected-ui-container {
+      display: flex;
+      justify-content: center;
+      gap: 30px; 
+      flex-wrap: wrap; 
+      margin: 0px 10;
+    }
+    
+    .iframe-wrapper {
+      position: relative;
+      width: 500px;
+      height: 450px;
+      overflow: hidden;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+      border: 3px solid #ddd; 
+    }
+
+    .ui-label {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 1.5em;
+    }
+    
+    .scaled-iframe {
+      transform: scale(0.587);
+      transform-origin: top left;
+      width: 250%;
+      height: 250%;
+      border: none;
+      display: block;
+    }
+
+    /* アクションボタンエリア */
+    .action-buttons {
+      text-align: center;
+      margin-top: 30px;
+      display: flex; 
+      flex-wrap: wrap; 
+      justify-content: center; 
+      gap: 10px; 
+    }
+
+    /* フッター */
+    .footer {
+      background-color: #333;
+      color: #aaa;
+      text-align: center;
+      padding: 30px 20px;
+      margin-top: 80px;
+    }
+    
+  </style>
+</head>
+
+<body>
+  <header class="navbar">
+    <nav>
+      <ul class="nav-list">
+        <li><a href="{{ url_for('home') }}">はじめに</a></li>
+        <li><a href="{{ url_for('sample') }}">配色サンプル</a></li>
+        <li><a href="{{ url_for('iga') }}">システムA</a></li>
+        <li><a href="{{ url_for('index') }}">システムB</a></li>
+        <li><a href="{{ url_for('result') }}">生成結果</a></li>
+        <li><a href="{{ url_for('question') }}">アンケート</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="page-header">
+    <h1>生成結果の確認</h1>
+  </section>
+
+  <section class="content-section">
+    <div class="generator-card">
+      
+      <div class="selected-ui-container">
+        
+        <div id="system-a-ui-block" style="display: none;" >
+          <p class="ui-label"><span style="color: #007bff;">システムA</span>で選択したUI配色案</p>
+          <div class="iframe-wrapper system-a">
+            <iframe class="scaled-iframe" id="system-a-iframe" src="" title="システムA 最終候補"></iframe>
+          </div>
+        </div>
+
+        <div id="system-b-ui-block" style="display: none;">
+          <p class="ui-label"><span style="color: #d9534f;">システムB</span>で選択したUI配色案</p>
+          <div class="iframe-wrapper system-b">
+            <iframe class="scaled-iframe" id="system-b-iframe" src="" title="システムB 最終候補"></iframe>
+          </div>
+        </div>
+
+      </div>
+      
+      <div class="action-buttons">
+        <a href="{{ url_for('question') }}" class="cta-button primary-action" id="question-btn">アンケートへ進む</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>© 2025 システムデザイン論研究室.</p>
+  </footer>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // 1. localStorage からAとB両方の最新データを読み込む
+      const final_A_Src = localStorage.getItem("final_ui_system_a");
+      const final_B_Src = localStorage.getItem("final_ui_system_b");
+
+      // 2. 読み込んだデータをDOMに反映
+      
+      // システムAの表示処理
+      if (final_A_Src) {
+        const iframeA = document.getElementById("system-a-iframe");
+        const blockA = document.getElementById("system-a-ui-block");
+        if (iframeA && blockA) {
+          iframeA.src = final_A_Src;
+          blockA.style.display = "block";
+        }
+      }
+
+      // システムBの表示処理
+      if (final_B_Src) {
+        const iframeB = document.getElementById("system-b-iframe");
+        const blockB = document.getElementById("system-b-ui-block");
+        if (iframeB && blockB) {
+          iframeB.src = final_B_Src;
+          blockB.style.display = "block";
+        }
+      }
+
+      // --- ボタン表示の制御 ---
+      const QUESTION_KEY = "question_button_used";
+      const questionBtn = document.getElementById("question-btn");
+      
+      // 初回かどうかの判定 (モーダルロジックは削除されたが、このフラグはボタンテキスト制御に残る)
+      const isFirstTime = !localStorage.getItem(QUESTION_KEY);
+
+      // 2回目以降のボタン表示変更
+      if (!isFirstTime) {
+          questionBtn.textContent = "アンケートに戻る";
+      }
+
+      // 初回アクセス時にフラグをlocalStorageに保存（モーダル表示なしで即時保存）
+      if (isFirstTime) {
+          questionBtn.addEventListener("click", () => {
+              // クリック時にフラグを立てる (モーダル確認なし)
+              localStorage.setItem(QUESTION_KEY, "true"); 
+              // デフォルトのリンク遷移はHTMLのhref属性によって行われる
+          });
+      }
+
+      /*
+        *** モーダル関連のロジックは全て削除されました ***
+      */
+    });
+  </script>
+  </body>
+</html>
