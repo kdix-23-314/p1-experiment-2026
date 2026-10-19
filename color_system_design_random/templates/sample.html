@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>UI色彩デザイン生成システム</title>
+  <style>
+    body {
+      margin: 0;
+      padding-top: 60px;
+      font-family: 'Helvetica Neue', 'Arial', 'Hiragino Sans', 'Meiryo', sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    /* ナビゲーションバー */
+    .navbar {
+      background-color: #333;
+      color: white;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+    }
+    .nav-list {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+      gap: 20px;
+    }
+    .nav-list li a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      transition: color 0.3s;
+    }
+    .nav-list li a:hover {
+      color: #ffcc00;
+    }
+
+    /* ページヘッダー */
+    .page-header {
+      padding: 10px 20px 50px;
+      text-align: center;
+      background: white;
+      border-bottom: 1px solid #ddd;
+    }
+    .page-header h1 {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+    }
+    .page-header p {
+      font-size: 1.1em;
+      color: #666;
+      max-width: 1000px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    
+    /* ギャラリーグリッド */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      max-width: 1200px;
+      margin: 40px auto;
+    }
+
+    .gallery-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+      text-align: center;
+      padding: 15px 20px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .gallery-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .gallery-card:hover {
+      transform: translateY(-5px); 
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+    .gallery-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 15px; 
+    }
+
+    .gallery-btn {
+      background-color: #ffcc00;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      margin-top: 10px;
+      font-size: 1em;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    .gallery-btn:hover {
+      background-color: #e6b800;
+      transform: translateY(-2px);
+    }
+
+    .footer {
+      background-color: #333;
+      color: #aaa;
+      text-align: center;
+      padding: 30px 20px;
+      margin-top: 80px;
+    }
+
+    /* --- モーダル (ポップアップ) のCSS --- */
+    .modal {
+      display: none; /* 初期状態では非表示 */
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4); /* 半透明の背景 */
+      backdrop-filter: blur(3px);
+    }
+
+    /* システム選択モーダルのコンテンツ */
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto; 
+      padding: 30px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 450px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+      font-size: 1.5em;
+      color: #333;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 25px;
+      gap: 15px;
+    }
+
+    .system-btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+      flex-grow: 1;
+      
+      /* ★ 修正: Flexboxを適用し、垂直中央揃えを確実にする */
+      display: flex; 
+      align-items: center; /* 垂直中央揃え */
+      justify-content: center; /* 水平中央揃え */
+    }
+
+    /* システムA: 青に固定 */
+    .system-btn.a {
+      background-color: #007bff;
+      color: white;
+    }
+
+    /* システムB: 赤に固定 (修正箇所) */
+    .system-btn.b {
+      background-color: #d9534f; /* 赤色に変更 */
+      color: white;
+    }
+
+    .system-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    .cta-button i.fa-solid {
+        margin-right: 6px; 
+    }
+    /* ★ 修正: .system-btn .button-icon にもスタイルを適用 */
+    .cta-button .button-icon,
+    .system-btn .button-icon { 
+        width: 18px; /* サイズ調整 */
+        height: 18px; /* サイズ調整 */
+        margin-left: 8px; 
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="navbar">
+    <nav>
+      <ul class="nav-list">
+        <li><a href="{{ url_for('home') }}">はじめに</a></li>
+        <li><a href="{{ url_for('sample') }}">配色サンプル</a></li>
+        <li><a href="{{ url_for('iga') }}">システムA</a></li>
+        <li><a href="{{ url_for('index') }}">システムB</a></li>
+        <li><a href="{{ url_for('result') }}">生成結果</a></li>
+        <li><a href="{{ url_for('question') }}">アンケート</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="page-header">
+    <h1>配色サンプル一覧</h1>    
+    </section>
+
+  <section class="content-section">
+    <div class="gallery-grid">
+      {% for theme in [
+        "TEL_Test_light", "TEL_Test_dark", "blue_light_2", "blue_dark_2", "pink_light_2", "pink_dark_2", "Casual", "Chic", "Enjoyable", "Formal", "Graceful", "Lighthearted",
+        "Plain", "Pretty", "Rich", "Christmas", "valentine's_day", "New_year", "Setsubun",
+        
+      ] %}
+        <div class="gallery-card">
+          <p style="font-weight: bold; margin: 0 0 10px 0; color: #333; font-size: 1.2em;">{{ theme }}</p>
+          <img src="{{ url_for('static', filename='sample_image/' + theme + '.png') }}" alt="{{ theme }}">
+          {% if loop.index <= 6 %}
+          <button class="gallery-btn" onclick="selectThemeAndGo('{{ theme }}')">このテーマで生成する</button>
+        {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>© 2025 システムデザイン論研究室.</p>
+  </footer>
+
+  <div id="systemSelectModal" class="modal">
+    <div class="modal-content">
+      <h3 id="modalThemeText">「テーマ名」が選択されました。</h3>
+      <p>このテーマでどちらのシステムを使って<br>配色案を生成しますか？</p>
+      <div class="modal-buttons">
+        <button class="system-btn a" onclick="goToSystem('iga')">システムAで生成<img src="{{ url_for('static', filename='arrow3.png') }}" alt="矢印アイコン" class="button-icon"></button>
+        <button class="system-btn b" onclick="goToSystem('index')">システムBで生成<img src="{{ url_for('static', filename='arrow3.png') }}" alt="矢印アイコン" class="button-icon"></button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // モーダルの要素を取得
+    const modal = document.getElementById('systemSelectModal');
+    const modalThemeText = document.getElementById('modalThemeText');
+
+    // スクロールアニメーション
+    document.addEventListener('DOMContentLoaded', () => {
+      const targets = document.querySelectorAll('.gallery-card');
+      const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry, index) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => {
+              entry.target.classList.add('visible');
+            }, index * 100);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.2 });
+      targets.forEach(target => observer.observe(target));
+    });
+
+    // 1. テーマ選択後にモーダルを表示
+    function selectThemeAndGo(themeName) {
+      modalThemeText.textContent = `「${themeName}」が選択されました。`;
+      modal.style.display = "block";
+      window.tempSelectedTheme = themeName;
+    }
+
+    // 2. システム選択ボタンのクリックで遷移
+    function goToSystem(systemRouteName) {
+      modal.style.display = "none";
+      if (systemRouteName === 'iga') {
+        localStorage.setItem("selected_theme_iga", window.tempSelectedTheme);
+        window.location.href = "{{ url_for('iga') }}";
+      } else if (systemRouteName === 'index') {
+        localStorage.setItem("selected_theme_index", window.tempSelectedTheme);
+        window.location.href = "{{ url_for('index') }}";
+      }
+    }
+    
+    // モーダル外のクリックでモーダルを閉じる
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      } 
+    }
+  </script>
+
+</body>
+</html>
