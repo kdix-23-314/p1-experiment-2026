@@ -1,0 +1,20 @@
+{
+    "system_A_result": {
+        "system": "A (IGA)",
+        "selected_ui_id": "IGA_03",
+        "selected_html_file": "ui_new_ver_6.html",
+        "selected_color_file": "colors_6.txt",
+        "color_file_path": "static/iga/output/colors_6.txt",
+        "elapsed_time_sec": 162,
+        "click_count": 4
+    },
+    "system_B_result": {
+        "system": "B",
+        "selected_ui_id": "UI_01",
+        "selected_html_file": "ui_new_ver_4.html",
+        "selected_color_file": "colors_4.txt",
+        "color_file_path": "static/index/colors_txt/colors_4.txt",
+        "elapsed_time_sec": 7,
+        "click_count": 3
+    }
+}
